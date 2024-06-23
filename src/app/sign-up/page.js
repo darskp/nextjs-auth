@@ -6,21 +6,32 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { registrationFormInitials, userRegistrationFormControls } from "@/util"
 import { useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
 
 const SignUp = () => {
+    const { toast } = useToast()
     const [signupFormData, setsignUpFormData] = useState(registrationFormInitials);
+    const router = useRouter();
 
-    const handleDisabledForm=()=>{
-        return Object.values(setsignUpFormData).every((key)=>key.trim()!=="");
+    const handleDisabledForm = () => {
+        return Object.values(setsignUpFormData).every((key) => key.trim() !== "");
     }
 
-    const handleSubmit=async()=>{
-        const result= await registerUserAction(signupFormData);
+    const handleSubmit = async () => {
+        
+        const result = await registerUserAction(signupFormData);
         console.log(result)
+        toast({
+            title: result?.message
+        })
+        if (result?.success) {
+            router.push('/sign-in')
+        }
     }
     return (
         <div className="max-w-full min-h-screen">
-         <div className="flex justify-start p-5">
+            <div className="flex justify-start p-5">
                 <h2 className="font-bold text-2xl">Sign Up</h2>
             </div>
             <form action={handleSubmit}>
@@ -44,7 +55,7 @@ const SignUp = () => {
                             </div>
                         )) : null
                     }
-                <Button type="submit" disabled={!handleDisabledForm()} className="disabled:opacity-20 w-fit">Button</Button>
+                    <Button type="submit" disabled={!handleDisabledForm()} className="disabled:opacity-20 w-fit">Sign Up</Button>
                 </div>
             </form>
         </div>

@@ -1,9 +1,18 @@
-import Image from "next/image";
+import { fetchUserAction } from "@/actions";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const userData = await fetchUserAction();
+
+  if (!userData?.data && !userData?.data?.length) {
+    redirect('/sign-in')
+  }
+
   return (
     <div>
-      Nextjs Aunthentication
+      <h2>
+        {userData?.data?.email}
+      </h2>
     </div>
 
   );

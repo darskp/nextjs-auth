@@ -5,10 +5,14 @@ import { FormElement } from "@/components/common/formElement/page"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { loginFormInitials, userLoginFormControls } from "@/util"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 const SignIn = () => {
+  const { toast } = useToast()
   const [signInFormData, setsignInFormData] = useState(loginFormInitials);
+  const router = useRouter();
 
   const handleDisabledForm = () => {
     return Object.values(setsignInFormData).every((key) => key.trim() !== "");
@@ -16,7 +20,13 @@ const SignIn = () => {
 
   const handleSubmit = async () => {
     const result = await loginUserAction(signInFormData);
-    console.log(result)
+    console.log(result);
+    toast({
+      title: result?.message
+    })
+    if(result?.success){
+      router.push('/')
+    }
   }
 
   return (

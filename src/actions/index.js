@@ -11,6 +11,8 @@ import {
     cookies
 } from "next/headers";
 
+const secretkey = "SAMPLE KEY";
+
 export const registerUserAction = async (formData) => {
     try {
         await connectToDB();
@@ -42,6 +44,7 @@ export const registerUserAction = async (formData) => {
         if (savedUser) {
             return {
                 success: true,
+                message: "Account has created!",
                 data: JSON.parse(JSON.stringify(savedUser)),
             };
         } else {
@@ -61,8 +64,9 @@ export const registerUserAction = async (formData) => {
 }
 
 export const loginUserAction = async (formData) => {
+    await connectToDB();
+    console.log("formData",formData)
     try {
-        await connectToDB();
         const {
             email,
             password
@@ -86,10 +90,10 @@ export const loginUserAction = async (formData) => {
         }
 
         const token = jwt.sign({
-            id: checkUser?._id,
+            _id: checkUser?._id,
             email: checkUser?.email,
             username: checkUser?.username
-        }, "SAMPLE KEY", {
+        }, secretkey, {
             expiresIn: '1h'
         })
 
@@ -103,6 +107,41 @@ export const loginUserAction = async (formData) => {
         return {
             success: false,
             message: "Something went wrong! Please try again!"
+        }
+    }
+
+}
+
+export const fetchUserAction = async () => {
+    await connectToDB();
+    try {
+        const getCookies = cookies();
+         const token = getCookies.get("token")?.value || "";
+        if (token === "") {
+            return {
+                success: false,
+                message: "Token is invalid",
+            };
+        }
+
+        const decodedToken = jwt.verify(token, secretkey);
+
+        const getUserInfo = await User.findOne({ _id: decodedToken?._id });
+        if (getUserInfo) {
+            return {
+                success: true,
+                data: JSON.parse(JSON.stringify(getUserInfo)),
+            };
+        } else {
+            return {
+                success: false,
+                message: "Some error occured ! Please try again",
+            };
+        }
+    } catch (err) {
+        return {
+            success: false,
+            message: "something went wrong"
         }
     }
 
