@@ -34,13 +34,18 @@ export const registerUserAction = async (formData) => {
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt)
 
-        const newlyCreatedUser = new User({
+        // const newlyCreatedUser = new User({
+        //     username,
+        //     email,
+        //     password: hashedPassword
+        // });
+
+        // const savedUser = await newlyCreatedUser.save();
+        const savedUser = await User.create({
             username,
             email,
             password: hashedPassword
-        });
-
-        const savedUser = await newlyCreatedUser.save();
+        })
         if (savedUser) {
             return {
                 success: true,
@@ -65,7 +70,7 @@ export const registerUserAction = async (formData) => {
 
 export const loginUserAction = async (formData) => {
     await connectToDB();
-    console.log("formData",formData)
+    console.log("formData", formData)
     try {
         const {
             email,
@@ -116,7 +121,7 @@ export const fetchUserAction = async () => {
     await connectToDB();
     try {
         const getCookies = cookies();
-         const token = getCookies.get("token")?.value || "";
+        const token = getCookies.get("token")?.value || "";
         if (token === "") {
             return {
                 success: false,
@@ -145,4 +150,20 @@ export const fetchUserAction = async () => {
         }
     }
 
+}
+
+export const logoutAction = () => {
+    try {
+        const getCookies = cookies();
+        getCookies.set('token', "")
+        return {
+            success: true,
+            message: "Logout successfully"
+        }
+    } catch (err) {
+        return {
+            success: false,
+            message: "Something went wrong"
+        }
+    }
 }
